@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <Containment.h>
+#include "Containment.h"
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -186,10 +186,12 @@ static int strcicmp(char const *a, char const *b)
 VPKHandle vpk_load(const char* vpk_path)
 {
 	size_t strlen_vpk_path = strlen(vpk_path);
-	const char* dot_vpk = &vpk_path[strlen_vpk_path - 4];
-	char underscore = vpk_path[strlen_vpk_path - 8];
-
-	char shouldSortOutEnding = !strcicmp(dot_vpk, ".vpk") && underscore == '_';
+	char shouldSortOutEnding = 0;
+	if (strlen_vpk_path >= 8) {
+		const char* dot_vpk = &vpk_path[strlen_vpk_path - 4];
+		char underscore = vpk_path[strlen_vpk_path - 8];
+		shouldSortOutEnding = !strcicmp(dot_vpk, ".vpk") && underscore == '_';
+	}
 
 	char* full_path;
 	if (shouldSortOutEnding)

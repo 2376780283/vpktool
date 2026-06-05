@@ -538,7 +538,7 @@ DEFINE_CONTAINMENT_TYPES(int64_t)
 DEFINE_CONTAINMENT_TYPES(uint64_t)
 
 // Murmur Hash, Source: https://code.google.com/p/smhasher/
-inline uint64_t ContainmentHashCustomSeed(const void* key, int32_t len, uint64_t seed)
+static inline uint64_t ContainmentHashCustomSeed(const void* key, int32_t len, uint64_t seed)
 {
 #ifdef CONTAINMENT_64_BIT
 	const uint64_t m = 0xc6a4a7935bd1e995ULL;
@@ -644,21 +644,21 @@ inline uint64_t ContainmentHashCustomSeed(const void* key, int32_t len, uint64_t
 #endif
 }
 
-inline uint64_t ContainmentHash(const void* key, int32_t len)
+static inline uint64_t ContainmentHash(const void* key, int32_t len)
 {
 	return ContainmentHashCustomSeed(key, len, 0x9747b28c);
 }
-inline uint64_t ContainmentHashStringCustomSeed(const char* key, uint64_t seed)
+static inline uint64_t ContainmentHashStringCustomSeed(const char* key, uint64_t seed)
 {
 	return ContainmentHashCustomSeed(key, (int32_t) strlen(key), seed);
 }
-inline uint64_t ContainmentHashString(const char* key)
+static inline uint64_t ContainmentHashString(const char* key)
 {
 	return ContainmentHash(key, (int32_t) strlen(key));
 }
 
 #ifndef CONTAINMENT_DISABLE_SORTHAND
-inline uint64_t hash_str(const char* key)
+static inline uint64_t hash_str(const char* key)
 {
 	return ContainmentHashString(key);
 }

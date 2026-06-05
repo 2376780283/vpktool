@@ -1,16 +1,18 @@
-cmake_minimum_required(VERSION 3.9)
+#示例 这不是给android用的
+cmake_minimum_required(VERSION 3.18.1)
 
-add_library (libvpk SHARED src/libvpk.c include/libvpk.h)
-target_include_directories(libvpk PUBLIC include extern/Containment)
-target_compile_definitions(libvpk PRIVATE LIBVPK_EXPORTS _CRT_SECURE_NO_WARNINGS)
+project("vpk")
 
-add_library (libvpk_static STATIC src/libvpk.c include/libvpk.h)
-target_include_directories(libvpk_static PUBLIC include extern/Containment)
-target_compile_definitions(libvpk_static PRIVATE _CRT_SECURE_NO_WARNINGS)
+# Add the directory containing Containment.h to include directories
+# Assuming Containment.h is in app/src/main/jni/
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-if(CMAKE_COMPILER_IS_GNUCC)
-	set(CMAKE_C_FLAGS "-static -static-libgcc -static-libstdc++")
-endif(UNIX)
+add_library(vpk SHARED
+    libvpk.c
+    vpk_jni.c
+)
 
-SET_TARGET_PROPERTIES(libvpk PROPERTIES PREFIX "")
-SET_TARGET_PROPERTIES(libvpk_static PROPERTIES PREFIX "")
+target_include_directories(vpk PUBLIC .)
+
+find_library(log-lib log)
+target_link_libraries(vpk ${log-lib})
