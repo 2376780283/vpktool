@@ -282,6 +282,9 @@ VPKFile vpk_fopen(VPKHandle handle, const char* name)
 	VPKHandleData* handle_data = vpk_data_from_handle(handle);
 	VPKFileData* file_data = vpk_get_file_data(handle, name);
 
+	if (!file_data)
+		return NULL;
+
 	size_t size = snprintf(NULL, 0, "%s_%03d.vpk", handle_data->BasePath, file_data->Meta.ArchiveIndex);
 	size++;
 	char* full_path = malloc(size);
@@ -290,6 +293,9 @@ VPKFile vpk_fopen(VPKHandle handle, const char* name)
 	file_data->File = fopen(full_path, "rb");
 
 	free(full_path);
+
+	if (!file_data->File)
+		return NULL;
 
 	fseek(file_data->File, file_data->Meta.Offset, SEEK_SET);
 
