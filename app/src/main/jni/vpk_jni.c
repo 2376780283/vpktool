@@ -55,6 +55,8 @@ Java_zzh_bin_vpktool_VpkEngine_extractFile(JNIEnv *env, jobject instance, jlong 
     const char *vpkFilePath = (*env)->GetStringUTFChars(env, vpkFilePath_, 0);
     const char *destPath = (*env)->GetStringUTFChars(env, destPath_, 0);
     
+    LOGI("Extracting VPK file: %s", vpkFilePath);
+    
     VPKFile file = vpk_fopen((VPKHandle)handle, vpkFilePath);
     if (!file) {
         LOGE("Failed to open file in VPK: %s", vpkFilePath);
@@ -64,30 +66,32 @@ Java_zzh_bin_vpktool_VpkEngine_extractFile(JNIEnv *env, jobject instance, jlong 
     }
     
     size_t len = vpk_flen(file);
-    char *buffer = (char*)malloc(len);
-    if (!buffer) {
-        LOGE("Failed to allocate memory for extraction");
+    LOGI("File length: %zu", len);
+    
+    char* data = vpk_malloc_and_read(file);
+    if (!data) {
+        LOGE("Failed to read file data from VPK");
         vpk_fclose(file);
         (*env)->ReleaseStringUTFChars(env, vpkFilePath_, vpkFilePath);
         (*env)->ReleaseStringUTFChars(env, destPath_, destPath);
         return JNI_FALSE;
     }
-    
-    vpk_fread(buffer, 1, len, file);
     
     FILE *destFile = fopen(destPath, "wb");
     if (!destFile) {
         LOGE("Failed to create destination file: %s", destPath);
-        free(buffer);
+        vpk_free(data);
         vpk_fclose(file);
         (*env)->ReleaseStringUTFChars(env, vpkFilePath_, vpkFilePath);
         (*env)->ReleaseStringUTFChars(env, destPath_, destPath);
         return JNI_FALSE;
     }
     
-    fwrite(buffer, 1, len, destFile);
+    size_t written = fwrite(data, 1, len, destFile);
+    LOGI("Bytes written: %zu", written);
+    
     fclose(destFile);
-    free(buffer);
+    vpk_free(data);
     vpk_fclose(file);
     
     LOGI("Extracted %s to %s", vpkFilePath, destPath);
